@@ -98,3 +98,147 @@ let moarGuidanceStatus = GuidanceSensorStatus(zAngularVelocityDegreesPerMinute: 
 
 //TWO PHASE INITIALIZATION
 //https://www.raywenderlich.com/119922/swift-tutorial-initialization-part-1
+
+struct CombustionChamberStatus {
+    var temperatureKelvin: Double
+    var pressureKiloPascals: Double
+    
+    init(temperatureKelvin: Double, pressureKiloPascals: Double) {
+        //print("Phase 1 init")
+        self.temperatureKelvin = temperatureKelvin
+        self.pressureKiloPascals = pressureKiloPascals
+        //print("CombustionChamberStatus filly initialized")
+        //print("Phase 2 init")
+    }
+    init(temperatureCelsius: Double, pressureAtmospheric: Double) {
+        //print("Phase 1 delegating init")
+        let temperatureKelvin = temperatureCelsius + 273.15
+        let pressureKiloPascals = pressureAtmospheric * 101.325
+        self.init(temperatureKelvin: temperatureKelvin, pressureKiloPascals: pressureKiloPascals)
+        //print("Phase 2 delegating init")
+    }
+}
+
+CombustionChamberStatus(temperatureCelsius: 32, pressureAtmospheric: 0.96)
+//console: 
+//  Phase 1 delegating init
+//  Phase 1 init
+//  CombustionChamberStatus filly initialized
+//  Phase 2 init
+//  Phase 2 delegating init
+
+
+
+
+
+//FAILABLE INITIALIZERS
+//  - returns optional values
+//  - can return nil if the initialization fails
+
+struct TankStatus {
+    var currentVolume: Double
+    var currentLiquidType: String?
+    
+    init?(currentVolume: Double, currentLiquidType: String?) {
+        if (currentVolume < 0) || (currentVolume > 0 && currentLiquidType == nil) {
+            return nil
+        }
+        self.currentVolume = currentVolume
+        self.currentLiquidType = currentLiquidType
+    }
+}
+
+if let tankStatus = TankStatus(currentVolume: -10.0, currentLiquidType: nil) {
+    //print("Tank Status Created.")
+} else {
+    //print("An initialization failure has occurred")
+}
+
+
+
+
+
+//THROWING FROM AN INITIALIZER
+enum InvalidAstronautDataError: Error {
+    case EmptyName
+    case InvalidAge
+}
+struct Astronaut {
+    let name: String
+    let age: Int
+    
+    init(name: String, age: Int) throws {
+        if name.isEmpty {
+            throw InvalidAstronautDataError.EmptyName
+        }
+        if age < 18 || age > 70 {
+            throw InvalidAstronautDataError.InvalidAge
+        }
+        
+        self.name = name
+        self.age = age
+    }
+}
+
+let johnny = try? Astronaut(name: "Johnny Cosmoseed", age: 17)
+
+
+//https://www.raywenderlich.com/121603/swift-tutorial-initialization-part-2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
