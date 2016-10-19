@@ -189,6 +189,65 @@ let johnny = try? Astronaut(name: "Johnny Cosmoseed", age: 17)
 
 
 
+//CLASS INITIALIZERS
+//FAILING OR THROWING FROM CLASS INITIALIZERS
+
+class LaunchSite {
+    let name: String
+    let coordinates: (String, String)
+    
+    init?(name:String, coordinates: (String, String)) {
+        self.name = name
+        self.coordinates = coordinates
+        
+        guard !name.isEmpty && !coordinates.0.isEmpty && !coordinates.1.isEmpty else {
+            return nil
+        }
+    }
+}
+
+
+
+
+//DESIGNATING AND CONVENIENCE INITIALIZERS
+//  - Designating initalizers are non-delegating initializers
+//  - Convenience initializers delegate from a designating initializer
+class RocketComponent {
+    let model: String
+    let serialNumber: String
+    let reusable: Bool
+    
+    //Init #1a - Designated
+    init(model: String, serialNumber: String, reusable: Bool) {
+        self.model = model
+        self.serialNumber = serialNumber
+        self.reusable = reusable
+    }
+    //Init #1b - Convenience
+    convenience init(model: String, serialNumber: String) {
+        self.init(model: model, serialNumber: serialNumber, reusable: false)
+    }
+    //Init #1c - Designated
+    init?(identifier: String, reusable: Bool) {
+        self.reusable = reusable
+
+        let identifierComponents = identifier.components(separatedBy: "-")
+        guard identifierComponents.count == 2 else {
+            return nil
+        }
+        self.model = identifierComponents[0]
+        self.serialNumber = identifierComponents[1]
+    }
+}
+let payload = RocketComponent(model: "RT-1", serialNumber: "234", reusable: false)
+let fairing = RocketComponent(model: "Serpent", serialNumber: "0")
+
+let component = RocketComponent(identifier: "R2-D2", reusable: true)
+let nonComponent = RocketComponent(identifier: "", reusable: true)
+
+
+
+
 
 
 
