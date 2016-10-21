@@ -212,6 +212,7 @@ class LaunchSite {
 //DESIGNATING AND CONVENIENCE INITIALIZERS
 //  - Designating initalizers are non-delegating initializers
 //  - Convenience initializers delegate from a designating initializer
+//  - You can use type methods (static) within initializers
 class RocketComponent {
     let model: String
     let serialNumber: String
@@ -241,11 +242,17 @@ class RocketComponent {
 //    }
     //Init #1d - Convenience
     convenience init?(identifier: String, reusable: Bool){
+        guard let (model, serialNumber) = RocketComponent.decomposeIdentifier(identifier: identifier) else {
+            return nil
+        }
+        self.init(model: model, serialNumber: serialNumber, reusable: reusable)
+    }
+    static func decomposeIdentifier(identifier: String) -> (model:String, serialNumber: String)? {
         let identifierComponents = identifier.components(separatedBy: "-")
         guard identifierComponents.count == 2 else {
             return nil
         }
-        self.init(model: identifierComponents[0], serialNumber: identifierComponents[1], reusable: reusable)
+        return (model: identifierComponents[0], serialNumber: identifierComponents[1])
     }
 }
 let payload = RocketComponent(model: "RT-1", serialNumber: "234", reusable: false)
@@ -258,7 +265,71 @@ let nonComponent = RocketComponent(identifier: "", reusable: true)
 
 
 
+//INHERITED INITIALIZERS
+//    - can use an inherited initializer if there is a default value for any new property declared in the subclass
+//    - cannot delegate up to a superclass convenience initializer
+//    - convenience inits also delegate across the class from which they were defined.  they do not delegate up to a superclass
+//    - When you want to use a superclass's uninherited designated initializer to instatiate a subclass, you override it
+class Tank: RocketComponent {
+    var encasingMaterial: String
+    
+    //Init #2a - Designated
+    init(model: String, serialNumber: String, reusable: Bool, encasingMaterial: String) {
+        self.encasingMaterial = encasingMaterial
+        super.init(model: model, serialNumber: serialNumber, reusable: reusable)
+    }
+    //Init #2b - Designated from Superclass
+    override init(model: String, serialNumber: String, reusable: Bool) {
+        self.encasingMaterial = "Aluminum"
+        super.init(model: model, serialNumber: serialNumber, reusable: reusable)
+    }
+}
 
+let fuelTank = Tank(model: "Athena", serialNumber: "003", reusable: true)
+//by providing a path through the overridden init in Tank, you can use the RocketComponent convenience init to create a Tank
+let liquitOxygenTank = Tank(identifier: "LOX-012", reusable: true)
+
+class LiquidTank: Tank {
+    let liquidType: String
+    
+    //Init #3a - Designated
+    init(model: String, serialNumber: String, reusable: Bool, encasingMaterial: String, liquidType: String) {
+        self.liquidType = liquidType
+        super.init(model: model, serialNumber: serialNumber, reusable: reusable, encasingMaterial: encasingMaterial)
+    }
+    //Init #3b - Convenience
+    convenience init(model: String, serialNumberInt: Int, reusable: Bool, encasingMaterial: String, liquidType: String){
+        let serialNumber = String(serialNumberInt)
+        self.init(model: model, serialNumber: serialNumber, reusable: reusable, encasingMaterial: encasingMaterial, liquidType: liquidType)
+    }
+    //Init #3c - Convenience
+    convenience init(model: String, serialNumberInt: Int, reusable: Int, encasingMaterial: String, liquidType: String) {
+        let reusable = reusable > 0
+        self.init(model: model, serialNumberInt: serialNumberInt, reusable: reusable, encasingMaterial: encasingMaterial, liquidType: liquidType)
+    }
+    //Init #3d - Convenience
+    convenience override init(model: String, serialNumber: String, reusable: Bool) {
+        self.init(model: model, serialNumber: serialNumber, reusable: reusable, encasingMaterial: "Aluminum", liquidType: "LOX")
+    }
+    //Init #3e - Convenience
+    convenience override init(model: String, serialNumber: String, reusable: Bool, encasingMaterial: String){
+        self.init(model: model, serialNumber: serialNumber, reusable: reusable, encasingMaterial: "Aluminum")
+    }
+    //Init #3f - Convenience
+    convenience init?(identifier: String, reusable: Bool, encasingMaterial: String, liquidType: String) {
+        guard let (model, serialNumber) = RocketComponent.decomposeIdentifier(identifier: identifier) else {
+            return nil
+        }
+        self.init(model: model, serialNumber: serialNumber, reusable: reusable, encasingMaterial: encasingMaterial, liquidType: liquidType)
+    }
+}
+
+let rp1Tank = LiquidTank(model: "Hermes", serialNumberInt: 5, reusable: 1, encasingMaterial: "Aluminum", liquidType: "LOX")
+let loxTank = LiquidTank(identifier: "LOX-1", reusable: true)
+let athenaFuelTank = LiquidTank(identifier: "Athena-9", reusable: true, encasingMaterial: "Aluminum", liquidType: "RP-1")
+
+
+//https://www.raywenderlich.com/121603/swift-tutorial-initialization-part-2
 
 
 
