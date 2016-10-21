@@ -227,16 +227,25 @@ class RocketComponent {
     convenience init(model: String, serialNumber: String) {
         self.init(model: model, serialNumber: serialNumber, reusable: false)
     }
+    
     //Init #1c - Designated
-    init?(identifier: String, reusable: Bool) {
-        self.reusable = reusable
-
+//    init?(identifier: String, reusable: Bool) {
+//        self.reusable = reusable
+//
+//        let identifierComponents = identifier.components(separatedBy: "-")
+//        guard identifierComponents.count == 2 else {
+//            return nil
+//        }
+//        self.model = identifierComponents[0]
+//        self.serialNumber = identifierComponents[1]
+//    }
+    //Init #1d - Convenience
+    convenience init?(identifier: String, reusable: Bool){
         let identifierComponents = identifier.components(separatedBy: "-")
         guard identifierComponents.count == 2 else {
             return nil
         }
-        self.model = identifierComponents[0]
-        self.serialNumber = identifierComponents[1]
+        self.init(model: identifierComponents[0], serialNumber: identifierComponents[1], reusable: reusable)
     }
 }
 let payload = RocketComponent(model: "RT-1", serialNumber: "234", reusable: false)
