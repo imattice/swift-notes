@@ -190,9 +190,9 @@ arithmeticTree.count
 
 public class BinarySearchTree<T: Comparable> {
     private(set) public var value: T
-    private(set) public var parent: BinarySearchTree?
-    private(set) public var left: BinarySearchTree?
-    private(set) public var right: BinarySearchTree?
+    public var parent: BinarySearchTree?
+    public var left: BinarySearchTree?
+    public var right: BinarySearchTree?
     
     public init(value: T) {
         self.value = value
@@ -263,17 +263,105 @@ binarySearchTree.insert(1)
 
 let binarySearchTreeFromArray = BinarySearchTree<Int>(array: [7, 2, 5, 10, 9, 1])
 
+//add a human-readable view to the tree
+extension BinarySearchTree: CustomStringConvertible {
+    public var description: String {
+        var s = ""
+        if let left = left {
+            s += "(\(left.description)) <- "
+        }
+        s += "\(value)"
+        if let right = right {
+            s += " -> ( \(right.description))"
+        }
+        return s
+    }
+}
+
+binarySearchTree.insert(13)
+
+//add search functionality
+extension BinarySearchTree {
+    public func recursiveSearch(_ value: T) -> BinarySearchTree? {
+        if value < self.value {
+            return left?.recursiveSearch(value)
+        } else if value > self.value {
+            return right?.recursiveSearch(value)
+        } else {
+            return self
+        }
+    }
+    public func iterativeSearch(_ value: T) -> BinarySearchTree? {
+        var node: BinarySearchTree? = self 
+        while case let n? = node {
+            if value < n.value {
+                node = n.left 
+            } else if value > n.value {
+                node = n.right
+            } else {
+                return node
+            }
+        }
+        return nil
+    }
+}
 
 
+binarySearchTree.iterativeSearch(5)
+binarySearchTree.recursiveSearch(2)
+binarySearchTree.iterativeSearch(100)
+binarySearchTree.recursiveSearch(6)
 
+//traverse the nodes
+extension BinarySearchTree {
+    public func traverseInOrder( _ process: (T) -> Void) {
+        left?.traverseInOrder(process)
+        process(value)
+        right?.traverseInOrder(process)
+    }
+    public func traversePreOrder( _ process: (T) -> Void) {
+        process(value)
+        left?.traversePreOrder(process)
+        right?.traversePreOrder(process)
+    }
+    public func traversePostOrder( _ process: (T) -> Void) {
+        left?.traversePostOrder(process)
+        right?.traversePostOrder(process)
+        process(value)
+    }
+}
 
+binarySearchTree.traverseInOrder { value in print(value) }
 
+//add map and filter functionality
+extension BinarySearchTree {
+    public func map( formula: (T) -> T)  -> [T] {
+        var a = [T]()
+        if let left = left { a += left.map(formula: formula) }
+        a.append(formula(value))
+        if let right = right { a += right.map(formula: formula) }
+        return a
+    }
+    public func toArray() -> [T] {
+        return map { $0 }
+    }
+}
 
+binarySearchTree.toArray()
 
-
-
-
-
+//deleteing nodes
+extension BinarySearchTree {
+    private func reconnectParentToNode(_ node: BinarySearchTree?) {
+        if let parent = parent {
+            if isLeftChild {
+                parent.left = node
+            } else {
+                parent.right = node
+            }
+        }
+        node?.parent = parent
+    }
+}
 
 
 
