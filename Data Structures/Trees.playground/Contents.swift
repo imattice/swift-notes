@@ -361,15 +361,131 @@ extension BinarySearchTree {
         }
         node?.parent = parent
     }
+    public func minimum() -> BinarySearchTree {
+        var node = self
+        //climb down the left nodes until there are not any nodes left.
+        while case let next? = node.left {
+            node = next
+        }
+        return node
+    }
+    public func maximum() -> BinarySearchTree {
+        var node = self
+        //climb down the right nodes until there are not any nodes left
+        while case let next? = node.right {
+            node = next 
+        }
+        return node
+    }
+    public func remove() -> BinarySearchTree? {
+        let replacement: BinarySearchTree?
+        
+        if let left = left {
+            if let right = right {
+                //handle case where the node has two children
+                replacement = removeNodeWithTwoChildren(left: left, right: right)
+            } else {
+                //handle case where the node only has a left child
+                replacement = left
+            }
+        } else if let right = right {
+            //handle case where the node only has a right child
+            replacement = right
+        } else {
+            //handle case where the node has no children
+            replacement = nil
+        }
+        
+        reconnectParentToNode(replacement)
+        
+        //remove the removed nodes pointers
+        parent = nil
+        left = nil
+        right = nil
+        
+        return replacement
+    }
+    private func removeNodeWithTwoChildren(left: BinarySearchTree, right: BinarySearchTree) -> BinarySearchTree {
+        let successor = right.minimum()
+        successor.remove()
+        
+        successor.left = left
+        left.parent = successor
+        
+        if right !== successor {
+            successor.right = right
+            right.parent = successor
+        } else {
+            successor.right = nil
+        }
+        
+        return successor
+    }
 }
 
+if let node2 = binarySearchTree.recursiveSearch(2) {
+    print(binarySearchTree)
+    node2.remove()
+    print(binarySearchTree)
+}
 
+extension BinarySearchTree {
+    //measure the distence to the root from a node
+    public func depth() -> Int {
+        var node = self
+        var edges = 0
+        while case let parent? = node.parent {
+            node = parent
+            edges += 1
+        }
+        return edges 
+    }
+    //return the node whose value precedes the current value in sorted order
+    public func predecessor() -> BinarySearchTree<T>? {
+        if let left = left {
+            return left.maximum()
+        } else {
+            var node = self
+            while case let parent? = node.parent {
+                if parent.value < value { return parent }
+                node = parent 
+            }
+            return nil
+        }
+    }
+    public func successor() -> BinarySearchTree<T>? {
+        if let right = right {
+            return right.minimum()
+        } else {
+            var node = self
+            while case let parent? = node.parent {
+                if parent.value > value { return parent }
+                node = parent 
+            }
+            return nil
+        }
+    }
+}
 
+if let node9 = binarySearchTree.iterativeSearch(9) {
+    node9.depth()
+}
 
+extension BinarySearchTree {
+    public func isBST(minValue: T, maxValue: T) -> Bool {
+        if value < minValue || value > maxValue {return false}
+        let leftBST = left?.isBST(minValue: minValue, maxValue: value) ?? true
+        let rightBST = right?.isBST(minValue: value, maxValue: maxValue) ?? true
+        return leftBST && rightBST 
+    }
+}
 
-
-
-
+if let node1 = binarySearchTree.recursiveSearch(1) {
+    binarySearchTree.isBST(minValue: Int.min, maxValue: Int.max)
+    node1.insert(100)
+    binarySearchTree.recursiveSearch(100)
+    binarySearchTree.isBST(minValue: Int.min, maxValue: Int.max)
+}
 
 
 
